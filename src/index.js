@@ -31,11 +31,15 @@ function getShapeName (shape) {
 
 class DebugDrawPlugin extends Phaser.Plugins.ScenePlugin {
   boot () {
-    this.systems.events
-      .on('start', this.sceneStart, this)
-      .on('render', this.sceneRender, this)
-      .on('shutdown', this.sceneShutdown, this)
-      .once('destroy', this.sceneDestroy, this);
+    if (Phaser.Class.name !== 'Class') {
+      console.warn('DebugDrawPlugin does not work with the minified version of Phaser. Plugin not loaded.');
+    } else {
+      this.systems.events
+        .on('start', this.sceneStart, this)
+        .on('render', this.sceneRender, this)
+        .on('shutdown', this.sceneShutdown, this)
+        .once('destroy', this.sceneDestroy, this);
+    }
   }
 
   sceneStart () {
@@ -109,11 +113,12 @@ class DebugDrawPlugin extends Phaser.Plugins.ScenePlugin {
     const { hitArea } = obj.input;
     const ctor = hitArea.constructor;
     const shape = _shapes[ctor.name];
+    if (shape) {
+      ctor.CopyFrom(hitArea, shape);
+      ctor.Offset(shape, getLeft(obj), getTop(obj));
 
-    ctor.CopyFrom(hitArea, shape);
-    ctor.Offset(shape, getLeft(obj), getTop(obj));
-
-    this.graphic['stroke' + getShapeName(shape) + 'Shape'](shape);
+      this.graphic['stroke' + getShapeName(shape) + 'Shape'](shape);
+    }
   }
 
   drawObjMask (obj) {
