@@ -114,7 +114,11 @@
     _createClass(DebugDrawPlugin, [{
       key: 'boot',
       value: function boot() {
-        this.systems.events.on('start', this.sceneStart, this).on('render', this.sceneRender, this).on('shutdown', this.sceneShutdown, this).once('destroy', this.sceneDestroy, this);
+        if (_phaser2.default.Class.name !== 'Class') {
+          console.warn('DebugDrawPlugin does not work with the minified version of Phaser. Plugin not loaded.');
+        } else {
+          this.systems.events.on('start', this.sceneStart, this).on('render', this.sceneRender, this).on('shutdown', this.sceneShutdown, this).once('destroy', this.sceneDestroy, this);
+        }
       }
     }, {
       key: 'sceneStart',
@@ -196,11 +200,12 @@
 
         var ctor = hitArea.constructor;
         var shape = _shapes[ctor.name];
+        if (shape) {
+          ctor.CopyFrom(hitArea, shape);
+          ctor.Offset(shape, getLeft(obj), getTop(obj));
 
-        ctor.CopyFrom(hitArea, shape);
-        ctor.Offset(shape, getLeft(obj), getTop(obj));
-
-        this.graphic['stroke' + getShapeName(shape) + 'Shape'](shape);
+          this.graphic['stroke' + getShapeName(shape) + 'Shape'](shape);
+        }
       }
     }, {
       key: 'drawObjMask',
